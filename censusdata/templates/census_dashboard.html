@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Census Dashboard</title> 
+</head>
+<body>
+
+ <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: #f3f4f6;
+      margin: 0;
+      padding: 30px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #1e3a8a;
+      margin-bottom: 30px;
+      font-size: 2rem;
+      align-items: center;
+      justify-content: center;
+      display: flex;
+    }
+
+    .form-section {
+      display: flex;
+      justify-content: center;
+      gap: 25px;
+      flex-wrap: wrap;
+    }
+
+    .form-container {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      padding: 25px;
+      width: 350px;
+      transition: 0.3s;
+    }
+
+    .form-container:hover {
+      transform: translateY(-5px);
+    }
+
+    h2 {
+      color: #2563eb;
+      font-size: 1.3rem;
+      margin-bottom: 15px;
+    }
+
+    table {
+      width: 100%;
+      border-spacing: 10px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+
+    button {
+      background: #2563eb;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: 0.3s;
+      width: 100%;
+    }
+
+    button:hover {
+      background: #1e40af;
+    }
+
+
+    /* ===== RESPONSIVE DESIGN ===== */
+
+/* Tablets and smaller laptops */
+@media (max-width: 992px) {
+  .form-section {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .form-container {
+    max-width: 45%;
+  }
+
+  .header-box h1 {
+    font-size: 1.8rem;
+  }
+
+  .table-container {
+    overflow-x: auto;
+  }
+
+  table th, table td {
+    font-size: 0.9rem;
+    padding: 8px;
+  }
+}
+
+/* Mobile devices */
+@media (max-width: 768px) {
+  .form-section {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .form-container {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  h1, h2 {
+    text-align: center;
+  }
+
+  button {
+    width: 100%;
+  }
+
+  .table-container {
+    padding: 10px;
+    overflow-x: auto;
+  }
+
+  table th, table td {
+    font-size: 0.85rem;
+    padding: 6px;
+  }
+
+  .grand-total-box {
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .header-box h1 {
+    font-size: 1.5rem;
+  }
+}
+
+/* Very small phones */
+@media (max-width: 480px) {
+  body {
+    padding: 10px;
+  }
+
+  .form-container {
+    padding: 15px;
+  }
+
+  h1 {
+    font-size: 1.3rem;
+  }
+
+  h2 {
+    font-size: 1rem;
+  }
+
+  button {
+    font-size: 0.9rem;
+    padding: 8px;
+  }
+}
+
+
+    
+  </style>
+</head>
+<body>
+<style>
+  .header-box {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin: 0 auto 30px auto;
+  max-width: 1200px; /* ✅ Matches footer width */
+  text-align: center;
+}
+
+.header-box h1 {
+  color: #1e3a8a;
+  font-size: 2rem;
+  margin-bottom: 5px;
+}
+
+.header-box p {
+  color: #6b7280;
+  font-size: 0.95rem;
+  margin: 0;
+}
+.header-box {
+    position: relative;
+}
+</style>
+
+  <!-- ===== HEADER ===== -->
+<div class="header-box">
+  <div style="position: absolute; top: 20px; right: 20px;">
+    <a href="{% url 'logout' %}" class="btn btn-danger">
+        <i class="bi bi-box-arrow-right"></i> Logout
+    </a>
+</div>
+
+  <h1>Census Gathering Sheet</h1>
+  <p class="text-muted">Consolidated Records of Vehicular Accidents, Injuries, and Suicides</p>
+</div>
+
+
+<div class="form-section"> 
+    <!-- Vehicular Accident Form -->
+    <div class="form-container">
+      <h2>Vehicular Accident</h2>
+      <form method="POST">
+        {% csrf_token %}
+        {{ accident_form.as_table }}
+        <!-- Hidden field for OTHERS text -->
+        <input type="hidden" id="v_others_text" name="v_others_text">
+        <!-- Hidden field for PATIENT_TYPE OTHERS -->
+        <input type="hidden" id="p_others_text" name="p_others_text">
+        <button type="submit" name="save_accident">SUBMIT</button>
+      </form>
+    </div>
+
+    <!-- Injury Form -->
+    <div class="form-container">
+      <h2>Injury</h2>
+      <form method="POST">
+        {% csrf_token %}
+        {{ injury_form.as_table }}
+        <!-- Hidden field for OTHERS text -->
+        <input type="hidden" id="i_others_text" name="i_others_text">
+        <button type="submit" name="save_injury">SUBMIT</button>
+      </form>
+    </div>
+
+    <!-- Suicide Form -->
+    <div class="form-container">
+      <h2>Suicide</h2>
+      <form method="POST">
+        {% csrf_token %}
+        {{ suicide_form.as_table }}
+        <!-- Hidden field for OTHERS text -->
+        <input type="hidden" id="s_others_text" name="s_others_text">
+        <button type="submit" name="save_suicide">SUBMIT</button>
+      </form>
+    </div>
+</div>
+
+<script>
+function handleOthers(selectId, hiddenId) {
+    const select = document.getElementById(selectId);
+    const hidden = document.getElementById(hiddenId);
+    if (!select) return; // safety
+    select.addEventListener('change', function() {
+        if (this.value === 'OTHERS') {
+            const custom = prompt("Please specify:");
+            hidden.value = custom || ''; // store in hidden field
+        } else {
+            hidden.value = '';
+        }
+    });
+}
+
+// Correct IDs with prefix
+handleOthers('id_accident-vehicle_type', 'v_others_text');
+handleOthers('id_accident-patient_type', 'p_others_text'); // optional for patient_type
+handleOthers('id_injury-injury_mechanism', 'i_others_text');
+handleOthers('id_suicide-suicide_mechanism', 's_others_text');
+</script>
+
+
+
+<style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background-color: #f3f4f6;
+      margin: 0;
+      padding: 40px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #1e3a8a;
+      margin-top: 40px;
+      font-size: 1.6rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .table-container {
+      background: #ffffff;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      padding: 25px;
+      margin: 30px auto;
+      max-width: 1099px;
+      overflow-x: auto;
+      transition: 0.3s;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 12px 15px;
+    }
+
+    th {
+      background-color: #2563eb;
+      color: white;
+      font-weight: 600;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9fafb;
+    }
+
+    tr:hover {
+      background-color: #e0e7ff;
+      transition: 0.3s;
+    }
+
+    td {
+      color: #374151;
+    }
+
+    .total-row th {
+      background: #1e3a8a;
+      color: #ffffff;
+      text-align: right;
+    }
+
+    .no-data {
+      text-align: center;
+      color: #6b7280;
+      font-style: italic;
+    }
+
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Tablets and smaller laptops */
+@media (max-width: 992px) {
+  .form-section {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .form-container {
+    max-width: 45%;
+  }
+
+  .header-box h1 {
+    font-size: 1.8rem;
+  }
+
+  .table-container {
+    overflow-x: auto;
+  }
+
+  table th, table td {
+    font-size: 0.9rem;
+    padding: 8px;
+  }
+}
+
+/* Mobile devices */
+@media (max-width: 768px) {
+  .form-section {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .form-container {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  h1, h2 {
+    text-align: center;
+  }
+
+  button {
+    width: 100%;
+  }
+
+  .table-container {
+    padding: 10px;
+    overflow-x: auto;
+  }
+
+  table th, table td {
+    font-size: 0.85rem;
+    padding: 6px;
+  }
+
+  .grand-total-box {
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .header-box h1 {
+    font-size: 1.5rem;
+  }
+}
+
+/* Very small phones */
+@media (max-width: 480px) {
+  body {
+    padding: 10px;
+  }
+
+  .form-container {
+    padding: 15px;
+  }
+
+  h1 {
+    font-size: 1.3rem;
+  }
+
+  h2 {
+    font-size: 1rem;
+  }
+
+  button {
+    font-size: 0.9rem;
+    padding: 8px;
+  }
+}
+
+
+  </style>
+</head>
+<body>
+
+<!-- Include Font Awesome and SweetAlert2 in head or before closing body -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Vehicular Records -->
+<div class="table-container">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h2>Vehicular Accident Records</h2>
+
+    <div>
+      <a href="{% url 'export_vehicular_records' %}" class="btn btn-success btn-sm">
+        <i class="bi bi-download"></i> Export CSV
+      </a>
+    </div>
+  </div>
+
+
+   <!-- Hidden form for bulk delete -->
+  <form id="bulkDeleteFormVehicular" method="POST" style="display:none;">
+    {% csrf_token %}
+    <input type="hidden" name="ids" id="bulk_ids_vehicular">
+</form>
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><input type="checkbox" id="check_all"></th>
+        <th>No.</th>
+        <th>Date</th>
+        <th>Age</th>
+        <th>Gender</th>
+        <th>Vehicle Type</th>
+        <th>Patient Type</th>
+        <th>Referred</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for record in vehicular_records %}
+      <tr>
+        <!-- Row checkbox -->
+        <td><input type="checkbox" class="record-checkbox" value="{{ record.id }}"></td>
+
+        <td>{{ forloop.counter }}</td>
+        <td>{{ record.date_recorded|date:"M d, Y - h:i A" }}</td>
+        <td>{{ record.age }}</td>
+        <td>{{ record.gender }}</td>
+
+        <td>
+          {% if record.vehicle_type == "OTHERS" %}
+            {{ record.v_others }}
+          {% else %}
+            {{ record.vehicle_type }}
+          {% endif %}
+        </td>
+
+        <td>
+          {% if record.patient_type == "OTHERS" %}
+            {{ record.p_others }}
+          {% else %}
+            {{ record.patient_type }}
+          {% endif %}
+        </td>
+
+        <td>{{ record.v_referred }}</td>
+        <td>{{ record.v_status }}</td>
+
+        <td>
+          <a href="{% url 'edit_vehicular_record' record.id %}" class="btn btn-primary btn-sm">
+            <i class="fa fa-edit"></i>
+          </a>
+
+          
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="10" class="no-data text-center">No vehicular accident records yet.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+
+    <tfoot>
+      <tr class="total-row">
+        <th colspan="8" class="text-end">Total:</th>
+        <th>{{ vehicular_total }}</th>
+
+        <th>
+          <button class="btn btn-danger btn-sm me-2" onclick="confirmBulkDeleteVehicular()"><i class="fa fa-trash"></i></button>
+        </th>
+
+      </tr>
+    </tfoot>
+
+  </table>
+</div>
+
+<!-- SweetAlert Scripts -->
+<script>
+  // Single delete
+  function confirmDelete(recordId) {
+      Swal.fire({
+          title: 'Are you sure?',
+          text: "This record will be permanently deleted!",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: 'Yes, delete it!'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              window.location.href = `/vehicular/delete/${recordId}/`;
+          }
+      });
+  }
+
+  // Toggle Check All
+  document.getElementById("check_all").addEventListener("click", function() {
+      const checkboxes = document.querySelectorAll(".record-checkbox");
+      checkboxes.forEach(cb => cb.checked = this.checked);
+  });
+
+  // Bulk delete
+ function confirmBulkDeleteVehicular() {
+    const selected = Array.from(document.querySelectorAll(".record-checkbox:checked"))
+                          .map(cb => cb.value);
+
+    if (selected.length === 0) {
+        Swal.fire({icon: "info", title: "No selected records"});
+        return;
+    }
+
+    Swal.fire({
+        title: "Are you sure?",
+        text: `Delete ${selected.length} record(s)?`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById("bulk_ids_vehicular").value = selected.join(",");
+            document.getElementById("bulkDeleteFormVehicular").action = "{% url 'bulk_delete_vehicular' %}";
+            document.getElementById("bulkDeleteFormVehicular").submit();
+        }
+    });
+}
+
+</script>
+
+
+<!-- Include Font Awesome and SweetAlert2 in head or before closing body -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Injury Records -->
+<div class="table-container">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h2>Injury Records</h2>
+    <a href="{% url 'export_injury_records' %}" class="btn btn-success btn-sm">
+      <i class="bi bi-download"></i> Export CSV
+    </a>
+  </div>
+
+<!-- Hidden form for bulk delete -->
+  <form id="bulkDeleteFormInjury" method="POST" style="display:none;">
+    {% csrf_token %}
+    <input type="hidden" name="ids" id="bulk_ids_injury">
+</form>
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><input type="checkbox" id="i_check_all"></th>
+        <th>No.</th>
+        <th>Date</th>
+        <th>Age</th>
+        <th>Gender</th>
+        <th>Injury Mechanism</th>
+        <th>Referred</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for record in injury_records %}
+      <tr>
+        <td><input type="checkbox" class="i_record-checkbox" value="{{ record.id }}"></td>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ record.date_recorded|date:"M d, Y - h:i A" }}</td>
+        <td>{{ record.age }}</td>
+        <td>{{ record.gender }}</td>
+        <td>
+          {% if record.injury_mechanism == "OTHERS" %}
+            {{ record.i_others }}
+          {% else %}
+            {{ record.injury_mechanism }}
+          {% endif %}
+        </td>
+        <td>{{ record.i_referred }}</td>
+        <td>{{ record.i_status }}</td>
+        <td class="text-center">
+          <!-- Edit Button -->
+          <a href="{% url 'edit_injury_record' record.id %}" class="btn btn-primary btn-sm">
+            <i class="fa fa-edit"></i>
+          </a>
+          <!-- Delete Button 
+          <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete({{ record.id }})">
+            <i class="fa fa-trash"></i>
+          </button>-->
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="8" class="no-data">No injury records yet.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+
+    <tfoot>
+      <tr class="total-row">
+        <th colspan="7" class="text-end">Total:</th>
+        <th>{{ injury_total }}</th>
+        <th>
+          <button class="btn btn-danger btn-sm me-2" onclick="confirmBulkDeleteInjury()"><i class="fa fa-trash"></i></button>
+        </th>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+   <!-- SweetAlert Scripts -->
+<script>
+  // Single delete
+  function confirmDelete(recordId) {
+      Swal.fire({
+          title: 'Are you sure?',
+          text: "This record will be permanently deleted!",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: 'Yes, delete it!'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              window.location.href = `/injury/delete/${recordId}/`;
+          }
+      });
+  }
+
+  // Toggle Check All
+  document.getElementById("i_check_all").addEventListener("click", function() {
+      const checkboxes = document.querySelectorAll(".i_record-checkbox");
+      checkboxes.forEach(cb => cb.checked = this.checked);
+  });
+
+  // Bulk delete
+ function confirmBulkDeleteInjury() {
+    const selected = Array.from(document.querySelectorAll(".i_record-checkbox:checked"))
+                          .map(cb => cb.value);
+
+    if (selected.length === 0) {
+        Swal.fire({icon: "info", title: "No selected records"});
+        return;
+    }
+
+    Swal.fire({
+        title: "Are you sure?",
+        text: `Delete ${selected.length} record(s)?`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById("bulk_ids_injury").value = selected.join(",");
+            document.getElementById("bulkDeleteFormInjury").action = "{% url 'bulk_delete_injury' %}";
+            document.getElementById("bulkDeleteFormInjury").submit();
+        }
+    });
+}
+
+</script>
+
+
+<!-- Include Font Awesome and SweetAlert2 in head or before closing body -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Suicide Records -->
+<div class="table-container">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h2>Suicide Records</h2>
+    <a href="{% url 'export_suicide_records' %}" class="btn btn-success btn-sm">
+      <i class="bi bi-download"></i> Export CSV
+    </a>
+  </div>
+
+<!-- Hidden form for bulk delete -->
+  <form id="bulkDeleteFormSuicide" method="POST" style="display:none;">
+    {% csrf_token %}
+    <input type="hidden" name="ids" id="bulk_ids_suicide">
+</form>
+
+
+  <table>
+    <tr>
+      <th><input type="checkbox" id="s_check_all"></th>
+      <th>No.</th>
+      <th>Date</th>
+      <th>Age</th>
+      <th>Gender</th>
+      <th>Suicide Mechanism</th>
+      <th>Referred</th>
+      <th>Status</th>
+       <th>Action</th>
+    </tr>
+    {% for record in suicide_records %}
+    <tr>
+      <td><input type="checkbox" class="s_record-checkbox" value="{{ record.id }}"></td>
+      <td>{{ forloop.counter }}</td>
+      <td>{{ record.date_recorded|date:"M d, Y - h:i A" }}</td>
+      <td>{{ record.age }}</td>
+      <td>{{ record.gender }}</td>
+
+      <!-- Suicide Mechanism -->
+      <td>
+        {% if record.suicide_mechanism == "OTHERS" %}
+            {{ record.s_others }}
+        {% else %}
+            {{ record.suicide_mechanism }}
+        {% endif %}
+      </td>
+      <td>{{ record.s_referred }}</td>
+      <td>{{ record.s_status }}</td>
+
+      <td class="text-center">
+          <!-- Edit Button -->
+          <a href="{% url 'edit_suicide_record' record.id %}" class="btn btn-primary btn-sm">
+            <i class="fa fa-edit"></i>
+          </a>
+          <!-- Delete Button 
+          <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete({{ record.id }})">
+            <i class="fa fa-trash"></i>
+          </button>-->
+        </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="8" class="no-data">No suicide records yet.</td></tr>
+    {% endfor %}
+    <tr class="total-row">
+      <th colspan="7">Total:</th>
+      <th>{{ suicide_total }}</th>
+      <th>
+          <button class="btn btn-danger btn-sm me-2" onclick="confirmBulkDeleteSuicide()"><i class="fa fa-trash"></i></button>
+      </th>
+    </tr>
+  </table>
+</div>
+
+   <!-- SweetAlert Scripts -->
+<script>
+  // Single delete
+  function confirmDelete(recordId) {
+      Swal.fire({
+          title: 'Are you sure?',
+          text: "This record will be permanently deleted!",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: 'Yes, delete it!'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              window.location.href = `/suicide/delete/${recordId}/`;
+          }
+      });
+  }
+
+  // Toggle Check All
+  document.getElementById("s_check_all").addEventListener("click", function() {
+      const checkboxes = document.querySelectorAll(".s_record-checkbox");
+      checkboxes.forEach(cb => cb.checked = this.checked);
+  });
+
+  // Bulk delete
+  function confirmBulkDeleteSuicide() {
+    const selected = Array.from(document.querySelectorAll(".s_record-checkbox:checked"))
+                          .map(cb => cb.value);
+
+    if (selected.length === 0) {
+        Swal.fire({icon: "info", title: "No selected records"});
+        return;
+    }
+
+    Swal.fire({
+        title: "Are you sure?",
+        text: `Delete ${selected.length} record(s)?`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById("bulk_ids_suicide").value = selected.join(",");
+            document.getElementById("bulkDeleteFormSuicide").action = "{% url 'bulk_delete_suicide' %}";
+            document.getElementById("bulkDeleteFormSuicide").submit();
+        }
+    });
+}
+
+</script>
+
+
+
+<!-- Add this once in your <head> -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+  body {
+    background: #f9fafb;
+    font-family: "Poppins", sans-serif;
+  }
+
+  .summary-section {
+    margin-top: 30px;
+  }
+
+  .summary-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+    background: white;
+    transition: transform 0.2s ease;
+  }
+
+  .summary-card:hover {
+    transform: scale(1.02);
+  }
+
+  .summary-card .card-header {
+    background: linear-gradient(90deg, #2563eb, #3b82f6);
+    color: white;
+    font-weight: 600;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+  }
+
+  .mini-table th {
+    color: #374151;
+    font-weight: 600;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .mini-table td {
+    color: #4b5563;
+  }
+
+  .summary-total {
+    font-weight: 700;
+    color: #2563eb;
+  }
+
+  .export-btn {
+    background: linear-gradient(90deg, #10b981, #059669);
+    border: none;
+    color: white;
+    font-weight: 600;
+    border-radius: 10px;
+    padding: 10px 20px;
+    box-shadow: 0 4px 10px rgba(5, 150, 105, 0.2);
+  }
+
+  .export-btn:hover {
+    background: linear-gradient(90deg, #059669, #047857);
+  }
+
+  .grand-total-box {
+    background: #fff;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+    border-radius: 15px;
+    padding: 25px;
+    text-align: center;
+  }
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Tablets and smaller laptops */
+@media (max-width: 992px) {
+  .form-section {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .form-container {
+    max-width: 45%;
+  }
+
+  .header-box h1 {
+    font-size: 1.8rem;
+  }
+
+  .table-container {
+    overflow-x: auto;
+  }
+
+  table th, table td {
+    font-size: 0.9rem;
+    padding: 8px;
+  }
+}
+
+/* Mobile devices */
+@media (max-width: 768px) {
+  .form-section {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .form-container {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  h1, h2 {
+    text-align: center;
+  }
+
+  button {
+    width: 100%;
+  }
+
+  .table-container {
+    padding: 10px;
+    overflow-x: auto;
+  }
+
+  table th, table td {
+    font-size: 0.85rem;
+    padding: 6px;
+  }
+
+  .grand-total-box {
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .header-box h1 {
+    font-size: 1.5rem;
+  }
+}
+
+/* Very small phones */
+@media (max-width: 480px) {
+  body {
+    padding: 10px;
+  }
+
+  .form-container {
+    padding: 15px;
+  }
+
+  h1 {
+    font-size: 1.3rem;
+  }
+
+  h2 {
+    font-size: 1rem;
+  }
+
+  button {
+    font-size: 0.9rem;
+    padding: 8px;
+  }
+}
+
+
+
+</style>
+
+<!-- ===== SUMMARY SECTION ===== -->
+<div class="container summary-section py-4">
+
+  <div class="row g-4">
+
+    <!-- Vehicular Summary -->
+    <div class="col-lg-4 col-md-6">
+      <div class="card summary-card shadow-sm border-0">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+          <span><i class="bi bi-car-front-fill me-2"></i>Vehicular Accident</span>
+          <span class="badge bg-light text-primary">Total: {{ vehicular_total }}</span>
+        </div>
+        <div class="card-body bg-light">
+          
+          <table class="table table-sm table-hover mb-3">
+            <thead class="table-primary"><tr><th>Gender</th><th>Total</th></tr></thead>
+            <tbody>
+              {% for gender, total in vehicular_gender_count.items %}
+              <tr><td>{{ gender }}</td><td class="text-end">{{ total }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+          <table class="table table-sm table-hover mb-3">
+            <thead class="table-primary"><tr><th>Vehicle Type</th><th>Total</th></tr></thead>
+            <tbody>
+              {% for type, total in vehicle_type_count.items %}
+              <tr><td>{{ type }}</td><td class="text-end">{{ total }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+          <table class="table table-sm table-hover mb-3">
+            <thead class="table-primary"><tr><th>Patient Type</th><th>Total</th></tr></thead>
+            <tbody>
+              {% for ptype, total in patient_type_count.items %}
+              <tr><td>{{ ptype }}</td><td class="text-end">{{ total }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+          <table class="table table-sm table-hover mb-0">
+            <thead class="table-primary"><tr><th>Status</th><th>Total</th></tr></thead>
+            <tbody>
+              {% for status, total in vehicular_status_count.items %}
+              <tr><td>{{ status }}</td><td class="text-end">{{ total }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+          
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Injury Summary -->
+    <div class="col-lg-4 col-md-6">
+      <div class="card summary-card shadow-sm border-0">
+        <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+          <span><i class="fa-solid fa-truck-medical me-2"></i>Injury</span>
+          <span class="badge bg-light text-danger">Total: {{ injury_total }}</span>
+        </div>
+        <div class="card-body bg-light">
+          <table class="table table-sm table-hover mb-3">
+            <thead class="table-danger"><tr><th>Gender</th><th>Total</th></tr></thead>
+            <tbody>
+              {% for gender, total in injury_gender_count.items %}
+              <tr><td>{{ gender }}</td><td class="text-end">{{ total }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+          <table class="table table-sm table-hover mb-3">
+            <thead class="table-danger"><tr><th>Mechanism</th><th>Total</th></tr></thead>
+            <tbody>
+              {% for mech, total in injury_mechanism_count.items %}
+              <tr><td>{{ mech }}</td><td class="text-end">{{ total }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+          <table class="table table-sm table-hover mb-0">
+            <thead class="table-danger"><tr><th>Status</th><th>Total</th></tr></thead>
+            <tbody>
+              {% for status, total in injury_status_count.items %}
+              <tr><td>{{ status }}</td><td class="text-end">{{ total }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+
+    <!-- Suicide Summary -->
+    <div class="col-lg-4 col-md-12">
+      <div class="card summary-card shadow-sm border-0">
+        <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+          <span><i class="bi bi-heartbreak-fill me-2"></i>Suicide</span>
+          <span class="badge bg-light text-secondary">Total: {{ suicide_total }}</span>
+        </div>
+        <div class="card-body bg-light">
+          <table class="table table-sm table-hover mb-3">
+            <thead class="table-secondary"><tr><th>Gender</th><th>Total</th></tr></thead>
+            <tbody>
+              {% for gender, total in suicide_gender_count.items %}
+              <tr><td>{{ gender }}</td><td class="text-end">{{ total }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+          <table class="table table-sm table-hover mb-3">
+            <thead class="table-secondary"><tr><th>Mechanism</th><th>Total</th></tr></thead>
+            <tbody>
+              {% for mech, total in suicide_mechanism_count.items %}
+              <tr><td>{{ mech }}</td><td class="text-end">{{ total }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+          <table class="table table-sm table-hover mb-0">
+            <thead class="table-secondary"><tr><th>Status</th><th>Total</th></tr></thead>
+            <tbody>
+              {% for status, total in suicide_status_count.items %}
+              <tr><td>{{ status }}</td><td class="text-end">{{ total }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grand Total and Export Button -->
+  <div class="row mt-4 align-items-center">
+    <div class="col-md-12">
+      <div class="grand-total-box">
+          <div class="text-end mb-0">
+              <a href="{% url 'export_records' %}" class="btn export-btn">
+                  <i class="bi bi-download me-1"></i>Reports
+              </a>
+          </div>
+        <h4 class="fw-bold text-primary">Grand Total</h4>
+        <h1 class="fw-bolder text-success">{{ vehicular_total|add:injury_total|add:suicide_total }}</h1>
+        <p class="text-muted">Census Gathering</p>
+      </div>
+    </div>
+   
+   
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+function confirmSave(formId) {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "Do you want to save this record?",
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, save it!",
+    cancelButtonText: "Cancel"
+  }).then((result) => {
+    if (result.isConfirmed) {
+      document.getElementById(formId).submit();
+    }
+  });
+}
+
+// ✅ Optional: Show success or error after saving
+{% if messages %}
+  {% for message in messages %}
+    Swal.fire({
+      icon: '{{ message.tags }}' === 'success' ? 'success' : 'error',
+      title: '{{ message }}',
+      showConfirmButton: false,
+      timer: 2000
+    });
+  {% endfor %}
+{% endif %}
+</script>
+
+
+
+</body>
+</html>

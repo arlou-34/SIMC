@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Injury Record</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .form-container {
+            max-width: 700px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .form-title {
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+        .others-input {
+            display: none;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2 class="form-title">Edit Injury Record</h2>
+        <form method="post">
+            {% csrf_token %}
+
+            <!-- Age -->
+            <div class="mb-3">
+                <label class="form-label">Age</label>
+                <input type="number" class="form-control" name="age" value="{{ record.age }}" required>
+            </div>
+
+            <!-- Gender -->
+            <div class="mb-3">
+                <label class="form-label">Gender</label>
+                <select class="form-select" name="gender" required>
+                    <option value="Male" {% if record.gender == "Male" %}selected{% endif %}>Male</option>
+                    <option value="Female" {% if record.gender == "Female" %}selected{% endif %}>Female</option>
+                </select>
+            </div>
+
+            <!-- Injury Mechanism -->
+            <div class="mb-3">
+                <label class="form-label">Injury Mechanism</label>
+                <select class="form-select" id="injury_mechanism" name="injury_mechanism" required>
+                    <option value="FALLING" {% if record.injury_mechanism == "FALLING" %}selected{% endif %}>FALLING</option>
+                    <option value="MAULING" {% if record.injury_mechanism == "MAULING" %}selected{% endif %}>MAULING</option>
+                    <option value="STABBING" {% if record.injury_mechanism == "STABBING" %}selected{% endif %}>STABBING</option>
+                    <option value="GUNSHOT" {% if record.injury_mechanism == "GUNSHOT" %}selected{% endif %}>GUNSHOT</option>
+                    <option value="EXPLOSION" {% if record.iinjury_mechanism == "EXPLOSION" %}selected{% endif %}>EXPLOSION</option>
+                    <option value="OTHERS" {% if record.injury_mechanism == "OTHERS" %}selected{% endif %}>OTHERS</option>
+                </select>
+                <input type="text" class="form-control mt-2" id="i_others" name="i_others" 
+                    value="{{ record.i_others }}" placeholder="Specify other injury">
+            </div>
+
+            <!-- Referred -->
+            <div class="mb-3">
+                <label class="form-label">Referred</label>
+                <select class="form-select" name="i_referred" required>
+                    <option value="Yes" {% if record.i_referred == "Yes" %}selected{% endif %}>Yes</option>
+                    <option value="No" {% if record.i_referred == "No" %}selected{% endif %}>No</option>
+                </select>
+            </div>
+
+            <!-- Facility -->
+            <div class="mb-3">
+                <label class="form-label">Facility</label>
+                <input type="text" class="form-control" name="i_facility" value="{{ record.i_facility }}" placeholder="Facility">
+            </div>
+
+            <!-- Status -->
+            <div class="mb-3">
+                <label class="form-label">Status</label>
+                <select class="form-select" name="i_status" required>
+                    <option value="Recovered" {% if record.i_status == "Recovered" %}selected{% endif %}>Recovered</option>
+                    <option value="Died" {% if record.i_status == "Died" %}selected{% endif %}>Died</option>
+                </select>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary btn-lg">Save Changes</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    const injurySelect = document.getElementById('injury_mechanism');
+    const iOthersInput = document.getElementById('i_others');
+
+    function toggleInput() {
+        if (injurySelect.value === 'OTHERS') {
+            iOthersInput.style.display = 'block';
+            iOthersInput.disabled = false;
+        } else {
+            iOthersInput.style.display = 'none';
+            iOthersInput.disabled = true;
+            iOthersInput.value = '';
+        }
+    }
+
+    // Initially show/hide based on record value
+    toggleInput();
+
+    // Listen for changes
+    injurySelect.addEventListener('change', toggleInput);
+</script>
+
+<style>
+    #i_others {
+        display: none; /* hide initially */
+    }
+</style>
+
+</body>
+</html>
+

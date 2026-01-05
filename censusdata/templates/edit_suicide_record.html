@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Suicide Record</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .form-container {
+            max-width: 700px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .form-title {
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+        .others-input {
+            display: none;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2 class="form-title">Edit Suicide Record</h2>
+        <form method="post">
+            {% csrf_token %}
+
+            <!-- Age -->
+            <div class="mb-3">
+                <label class="form-label">Age</label>
+                <input type="number" class="form-control" name="age" value="{{ record.age }}" required>
+            </div>
+
+            <!-- Gender -->
+            <div class="mb-3">
+                <label class="form-label">Gender</label>
+                <select class="form-select" name="gender" required>
+                    <option value="Male" {% if record.gender == "Male" %}selected{% endif %}>Male</option>
+                    <option value="Female" {% if record.gender == "Female" %}selected{% endif %}>Female</option>
+                </select>
+            </div>
+
+            <!-- Suicide Mechanism -->
+            <div class="mb-3">
+                <label class="form-label">Suicide Mechanism</label>
+                <select class="form-select" id="suicide_mechanism" name="suicide_mechanism" required>
+                    <option value="HANGING" {% if record.suicide_mechanism == "HANGING" %}selected{% endif %}>HANGING</option>
+                    <option value="FIREARMS" {% if record.suicide_mechanism == "FIREARMS" %}selected{% endif %}>FIREARMS</option>
+                    <option value="SELF-IMMOLATION" {% if record.suicide_mechanism == "SELF-IMMOLATION" %}selected{% endif %}>SELF-IMMOLATION</option>
+                    <option value="SUICIDE BY VEHICLE" {% if record.suicide_mechanism == "SUICIDE BY VEHICLE" %}selected{% endif %}>SUICIDE BY VEHICLE</option>
+                    <option value="OTHERS" {% if record.suicide_mechanism == "OTHERS" %}selected{% endif %}>OTHERS</option>
+                </select>
+                <input type="text" class="form-control mt-2" id="s_others" name="s_others" 
+                    value="{{ record.s_others }}" placeholder="Specify other suicide">
+            </div>
+
+            <!-- Referred -->
+            <div class="mb-3">
+                <label class="form-label">Referred</label>
+                <select class="form-select" name="s_referred" required>
+                    <option value="Yes" {% if record.s_referred == "Yes" %}selected{% endif %}>Yes</option>
+                    <option value="No" {% if record.s_referred == "No" %}selected{% endif %}>No</option>
+                </select>
+            </div>
+
+            <!-- Facility -->
+            <div class="mb-3">
+                <label class="form-label">Facility</label>
+                <input type="text" class="form-control" name="s_facility" value="{{ record.s_facility }}" placeholder="Facility">
+            </div>
+
+            <!-- Status -->
+            <div class="mb-3">
+                <label class="form-label">Status</label>
+                <select class="form-select" name="s_status" required>
+                    <option value="Recovered" {% if record.s_status == "Recovered" %}selected{% endif %}>Recovered</option>
+                    <option value="Died" {% if record.s_status == "Died" %}selected{% endif %}>Died</option>
+                </select>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary btn-lg">Save Changes</button>
+            </div>
+        </form>
+    </div>
+
+   
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    const suicideSelect = document.getElementById('suicide_mechanism');
+    const sOthersInput = document.getElementById('s_others');
+
+    function toggleInput() {
+        if (suicideSelect.value === 'OTHERS') {
+            sOthersInput.style.display = 'block';
+            sOthersInput.disabled = false;
+        } else {
+            sOthersInput.style.display = 'none';
+            sOthersInput.disabled = true;
+            sOthersInput.value = '';
+        }
+    }
+
+    // Initially show/hide based on record value
+    toggleInput();
+
+    // Listen for changes
+     suicideSelect.addEventListener('change', toggleInput);
+</script>
+
+<style>
+    #s_others {
+        display: none; /* hide initially */
+    }
+</style>
+
+</body>
+</html>
+
